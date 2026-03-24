@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>언론기사 자동화 제너레이터</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="modal-wrapper">
+        <div class="modal-card">
+
+            <header class="modal-header">
+                <h1 class="modal-title">언론기사 자동화 모듈</h1>
+                <p class="modal-subtitle">필요한 정보를 입력해 주시면 언론기사 초안을 생성해 드립니다.</p>
+
+                <!-- Stepper -->
+                <div class="stepper">
+                    <div class="step active" id="stepIndicator1">
+                        <div class="step-badge">01</div>
+                        <span class="step-label">공통 정보</span>
+                    </div>
+                    <div class="step-divider"></div>
+                    <div class="step" id="stepIndicator2">
+                        <div class="step-badge">02</div>
+                        <span class="step-label">특화 정보</span>
+                    </div>
+                    <div class="step-divider"></div>
+                    <div class="step" id="stepIndicator3">
+                        <div class="step-badge">03</div>
+                        <span class="step-label">최종 검수</span>
+                    </div>
+                </div>
+            </header>
+
+            <form id="articleForm">
+
+                <!-- 1단계: 공통 정보 -->
+                <section class="form-step active" id="step1">
+                    <div class="form-group">
+                        <label for="topic">주제</label>
+                        <input type="text" id="topic" name="topic" placeholder="기사의 핵심 주제를 간략히 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label for="main_content">주요 내용</label>
+                        <textarea id="main_content" name="main_content"
+                            placeholder="육하원칙에 맞추어 주요 내용을 구체적으로 작성해 주세요"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">비즈니스 카테고리</label>
+                        <input type="text" id="category" name="category" placeholder="IT/스타트업, 소비재 등">
+                    </div>
+                    <div class="form-group">
+                        <label for="keywords">핵심 키워드</label>
+                        <input type="text" id="keywords" name="keywords" placeholder="콤마(,)로 구분">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="articleType">기사 유형 선택</label>
+                        <select id="articleType" name="articleType">
+                            <option value="" disabled selected>생성할 기사 유형을 선택해 주세요</option>
+                            <option value="typeA">유형 A. 행사 참여</option>
+                            <option value="typeB">유형 B. 인증 획득/선정</option>
+                            <option value="typeC">유형 C. 서비스 런칭</option>
+                            <option value="typeD">유형 D. 그 외 성과</option>
+                        </select>
+                        <p class="field-desc">유형에 따라 다음 단계에서 입력할 상세 정보가 변경됩니다.</p>
+                    </div>
+                </section>
+
+                <!-- 2단계: 특화 정보 -->
+                <section class="form-step" id="step2">
+                    <div class="empty-state hidden" id="emptySpecificFields">
+                        <p>1단계에서 기사 유형을 선택해 주세요.</p>
+                    </div>
+
+                    <!-- 유형 A: 행사 참여 -->
+                    <div id="typeA_fields" class="type-fields hidden">
+                        <div class="form-group">
+                            <label for="event_name">행사명</label>
+                            <input type="text" id="event_name" name="event_name" placeholder="정확한 행사명을 입력하세요">
+                        </div>
+                        <div class="form-group">
+                            <label for="event_info">행사 일시/장소 및 주최</label>
+                            <input type="text" id="event_info" name="event_info"
+                                placeholder="예: 2024년 10월 1일, 코엑스, 한국무역협회">
+                        </div>
+                        <div class="form-group">
+                            <label for="event_role">자사 핵심 역할 및 주요 활동 내역</label>
+                            <textarea id="event_role" name="event_role"
+                                placeholder="참가 부스 운영, 세션 발표 등 주요 활동을 적어주세요"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="event_metrics">행사 규모 및 구체적 성과 수치</label>
+                            <input type="text" id="event_metrics" name="event_metrics"
+                                placeholder="참관객 수, 계약 건수 등 수치 위주로 입력">
+                        </div>
+                        <div class="form-group">
+                            <label for="event_quote">관계자 코멘트 (선택)</label>
+                            <textarea id="event_quote" name="event_quote"
+                                placeholder="임원/담당자의 핵심 메시지(인용구)를 입력하세요"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 유형 B: 인증 획득/선정 -->
+                    <div id="typeB_fields" class="type-fields hidden">
+                        <div class="form-group">
+                            <label for="cert_name">인증(사업)명 및 선정 의미</label>
+                            <input type="text" id="cert_name" name="cert_name" placeholder="정확한 인증명과 그 의의를 적어주세요">
+                        </div>
+                        <div class="form-group">
+                            <label for="cert_org">주최 및 주관 기관</label>
+                            <input type="text" id="cert_org" name="cert_org" placeholder="예: 중소벤처기업부, 창업진흥원">
+                        </div>
+                        <div class="form-group">
+                            <label for="cert_core">선정 배경 및 자사 핵심 역량</label>
+                            <textarea id="cert_core" name="cert_core"
+                                placeholder="주요 평가 기준이나 입증된 당사의 성과 등을 서술하세요"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="cert_plan">선정 혜택 및 향후 비즈니스 계획</label>
+                            <textarea id="cert_plan" name="cert_plan" placeholder="지원금/혜택 내용과 이를 활용한 향후 계획"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="cert_quote">관계자 코멘트 (선택)</label>
+                            <textarea id="cert_quote" name="cert_quote" placeholder="담당자의 인용구를 입력하세요"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 유형 C: 서비스 런칭 -->
+                    <div id="typeC_fields" class="type-fields hidden">
+                        <div class="form-group">
+                            <label for="launch_name">서비스/제품명</label>
+                            <input type="text" id="launch_name" name="launch_name" placeholder="정확한 명칭을 입력하세요">
+                        </div>
+                        <div class="form-group">
+                            <label for="launch_target">메인 타겟 고객 및 기존 시장의 문제점</label>
+                            <textarea id="launch_target" name="launch_target"
+                                placeholder="어떤 문제를 해결하고자 출시했는지 적어주세요"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="launch_solution">서비스 핵심 솔루션</label>
+                            <textarea id="launch_solution" name="launch_solution"
+                                placeholder="문제 해결 방식과 차별화 포인트를 입력하세요"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="launch_promo">런칭 프로모션 및 트랙션 초기 성과</label>
+                            <textarea id="launch_promo" name="launch_promo"
+                                placeholder="가격 혜택이나 베타 테스트 시의 초기 반응 등"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="launch_quote">관계자 코멘트 (선택)</label>
+                            <textarea id="launch_quote" name="launch_quote"
+                                placeholder="대표/담당자의 포부를 덧붙여 주세요"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 유형 D: 그 외 성과 -->
+                    <div id="typeD_fields" class="type-fields hidden">
+                        <div class="form-group">
+                            <label for="achieve_name">성과의 핵심 주제 및 프로젝트명</label>
+                            <input type="text" id="achieve_name" name="achieve_name" placeholder="프로젝트 이름이나 주요 성과의 제목">
+                        </div>
+                        <div class="form-group">
+                            <label for="achieve_metrics">정량/정성적 핵심 성과 수치 및 달성 기간</label>
+                            <input type="text" id="achieve_metrics" name="achieve_metrics"
+                                placeholder="예: 3개월 만에 매출 200% 증가">
+                        </div>
+                        <div class="form-group">
+                            <label for="achieve_reason">성공 요인</label>
+                            <textarea id="achieve_reason" name="achieve_reason"
+                                placeholder="차별화된 전략이나 방법론을 설명해 주세요"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="achieve_case">구체적인 우수(대표) 사례 요약</label>
+                            <textarea id="achieve_case" name="achieve_case"
+                                placeholder="도입 사례나 적용 결과 등 대표적 예시 한 가지"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="achieve_quote">관계자 코멘트 (선택)</label>
+                            <textarea id="achieve_quote" name="achieve_quote"
+                                placeholder="성과의 의의 및 향후 목표에 대한 인용구"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3단계: 최종 검수 영역 -->
+                <section class="form-step" id="step3">
+                    <div class="completed-message" id="readyMessage">
+                        <svg class="success-icon" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h3>필요한 정보 입력을 모두 완료하셨습니다.</h3>
+                        <p>생성하기 버튼을 누르시면 AI가 맞춤형 언론기사 초안을 작성하고,<br>팩트체크 검수까지 함께 진행합니다.</p>
+                    </div>
+
+                    <div class="loading-state hidden" id="loadingState">
+                        <div class="spinner"></div>
+                        <h3 style="margin-top: 20px;">AI가 완성도 높은 언론기사를 작성하고 있습니다...</h3>
+                        <p style="color: #6B7280; font-size: 0.9rem; margin-top: 8px;">(약 30초에서 1분 정도 소요될 수 있습니다. 창을 닫지 말고 잠시만 기다려주세요.)</p>
+                    </div>
+
+                    <div class="result-state hidden" id="resultState">
+                        <h3 style="margin-bottom: 8px;">언론기사 결과물</h3>
+                        <p style="color: #6B7280; font-size: 0.9rem; margin-bottom: 16px;">수정이 필요한 부분이 있다면 텍스트창에서 바로 수정할 수 있습니다.</p>
+                        <div class="form-group">
+                            <textarea id="finalArticleOutput"
+                                style="min-height: 250px; background-color: #fafafa; font-size: 0.95rem; line-height: 1.6;"
+                                placeholder="이곳에 결과가 표시됩니다."></textarea>
+                        </div>
+                    </div>
+                </section>
+
+            </form>
+
+            <footer class="modal-footer">
+                <button type="button" id="backBtn" class="btn btn-secondary hidden">뒤로가기</button>
+                <button type="button" id="resetBtn" class="btn btn-secondary hidden">다시 만들기</button>
+                <div class="spacer"></div>
+                <button type="button" id="nextBtn" class="btn btn-primary" disabled>다음 단계</button>
+                <button type="submit" id="submitBtn" class="btn btn-primary hidden" form="articleForm" disabled>생성하기</button>
+                <button type="button" id="copyBtn" class="btn btn-primary hidden">복사하기</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
