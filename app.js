@@ -221,14 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 1. Loading UI 전환 및 제출/리셋/뒤로가기 버튼 숨김
+        // 1. Loading UI 전환 및 제출/뒤로가기 버튼 비활성화 (숨기지 않고 유지)
         document.getElementById('readyMessage').classList.add('hidden');
         document.getElementById('loadingState').classList.remove('hidden');
         document.getElementById('resultState').classList.add('hidden');
-        submitBtn.classList.add('hidden');
+        
         submitBtn.disabled = true;
-        resetBtn.classList.add('hidden');
-        backBtn.classList.add('hidden');
+        backBtn.disabled = true;
+        resetBtn.classList.add('hidden'); // 혹시 모를 상황 대비 숨김 유지
 
         // 확실한 데이터 수집을 위해 HTML5 FormData API를 사용합니다.
         const formData = new FormData(form);
@@ -289,6 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 outputEl.style.height = outputEl.scrollHeight + 'px'; // 스크롤 높이만큼 설정
                 
                 submitBtn.classList.add('hidden'); // Hide submit button once generated
+                backBtn.classList.add('hidden'); // Hide back button once generated
                 copyBtn.classList.remove('hidden'); // Show copy button
                 resetBtn.classList.remove('hidden'); // 결과 나오면 다시 만들기 복구
             } else {
@@ -306,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             document.getElementById('loadingState').classList.add('hidden');
             submitBtn.disabled = false; // Re-enable submit button in case of error or completion
+            backBtn.disabled = false; // Re-enable back button
         }
     });
 
