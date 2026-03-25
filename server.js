@@ -22,7 +22,8 @@ const openai = new OpenAI({
 
 // Helper Function: Read Prompt File
 async function getPromptContent(filename) {
-    const filePath = path.join(__dirname, 'prompts', filename);
+    // Vercel 환경 호환을 위해 __dirname 대신 process.cwd() 사용
+    const filePath = path.join(process.cwd(), 'prompts', filename);
     const content = await fs.readFile(filePath, 'utf-8');
     return content;
 }
