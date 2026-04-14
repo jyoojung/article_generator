@@ -19,178 +19,197 @@
                 <h1 class="modal-title">언론기사 자동화 모듈</h1>
                 <p class="modal-subtitle">필요한 정보를 입력해 주시면 언론기사 초안을 생성해 드립니다.</p>
 
-                <!-- Stepper -->
-                <div class="stepper">
-                    <div class="step active" id="stepIndicator1">
-                        <div class="step-badge">01</div>
-                        <span class="step-label">공통 정보</span>
-                    </div>
-                    <div class="step-divider"></div>
-                    <div class="step" id="stepIndicator2">
-                        <div class="step-badge">02</div>
-                        <span class="step-label">특화 정보</span>
-                    </div>
-                    <div class="step-divider"></div>
-                    <div class="step" id="stepIndicator3">
-                        <div class="step-badge">03</div>
-                        <span class="step-label">최종 검수</span>
-                    </div>
-                </div>
             </header>
 
             <form id="articleForm">
 
-                <!-- 1단계: 공통 정보 -->
+                <!-- 1단계: 정보 입력 (공통 + 조건부 특화 통합) -->
                 <section class="form-step active" id="step1">
+
+
+                    <!-- 기사 유형 선택 (Tab / Segmented Control) -->
                     <div class="form-group">
-                        <label for="topic">주제</label>
-                        <input type="text" id="topic" name="topic" placeholder="기사의 핵심 주제를 간략히 입력하세요">
-                    </div>
-                    <div class="form-group">
-                        <label for="main_content">주요 내용</label>
-                        <textarea id="main_content" name="main_content"
-                            placeholder="육하원칙에 맞추어 주요 내용을 구체적으로 작성해 주세요"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="category">비즈니스 카테고리</label>
-                        <input type="text" id="category" name="category" placeholder="IT/스타트업, 소비재 등">
-                    </div>
-                    <div class="form-group">
-                        <label for="keywords">핵심 키워드</label>
-                        <input type="text" id="keywords" name="keywords" placeholder="콤마(,)로 구분">
+                        <label>기사 유형 선택</label>
+                        <div class="tab-group" id="chipGroup">
+                            <button type="button" class="tab" data-type="typeA">행사 참여</button>
+                            <button type="button" class="tab" data-type="typeB">인증 획득</button>
+                            <button type="button" class="tab" data-type="typeC">서비스 런칭</button>
+                            <button type="button" class="tab" data-type="typeD">그 외 성과</button>
+                        </div>
+                        <!-- hidden input to carry the value for FormData -->
+                        <input type="hidden" id="articleType" name="articleType" value="">
                     </div>
 
-                    <div class="form-group">
-                        <label for="articleType">기사 유형 선택</label>
-                        <select id="articleType" name="articleType">
-                            <option value="" disabled selected>생성할 기사 유형을 선택해 주세요</option>
-                            <option value="typeA">유형 A. 행사 참여</option>
-                            <option value="typeB">유형 B. 인증 획득/선정</option>
-                            <option value="typeC">유형 C. 서비스 런칭</option>
-                            <option value="typeD">유형 D. 그 외 성과</option>
-                        </select>
-                        <p class="field-desc">유형에 따라 다음 단계에서 입력할 상세 정보가 변경됩니다.</p>
-                    </div>
+                    <!-- 조건부 렌더링 영역: 유형별 특화 폼 -->
+                    <div id="specificFieldsWrapper">
+
+                        <!-- 유형 A: 행사 참여 -->
+                        <div id="typeA_fields" class="type-fields">
+                            <div class="type-fields-inner">
+
+                                <!-- 핵심 키워드 -->
+                                <div class="form-group">
+                                    <label for="keywords_A">핵심 키워드</label>
+                                    <input type="text" id="keywords_A" name="keywords" placeholder="콤마(,)로 구분">
+                                </div>
+
+                                <!-- ① 행사명 -->
+                                <div class="form-group">
+                                    <label for="event_name">행사명</label>
+                                    <input type="text" id="event_name" name="event_name" placeholder="정확한 행사명을 입력하세요">
+                                </div>
+
+                                <!-- ② 일시 + 장소 (2열 그리드) -->
+                                <div class="form-group">
+                                    <div class="field-row field-row--2col">
+                                        <div class="field-row-item">
+                                            <label for="event_date" class="sub-label">행사 일시</label>
+                                            <input type="date" id="event_date" name="event_date">
+                                        </div>
+                                        <div class="field-row-item">
+                                            <label for="event_place" class="sub-label">행사 장소</label>
+                                            <input type="text" id="event_place" name="event_place" placeholder="예: 코엑스 바다와홀">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ③ 주최/주관 기관 -->
+                                <div class="form-group">
+                                    <label for="event_org">주최/주관 기관</label>
+                                    <input type="text" id="event_org" name="event_org" placeholder="예: 한국무역협회">
+                                </div>
+
+                                <!-- ④ 규모 및 성과 수치 (선택) -->
+                                <div class="form-group">
+                                    <label for="event_metrics">행사 규모 및 구체적 성과 수치 <span class="label-optional">(선택)</span></label>
+                                    <input type="text" id="event_metrics" name="event_metrics"
+                                        placeholder="참관객 수, 계약 건수 등 수치 위주로 입력">
+                                </div>
+
+                                <!-- ── 나머지 항목 ── -->
+
+                                <!-- 자사 핵심 역할 및 주요 활동 내역 -->
+                                <div class="form-group">
+                                    <label for="event_role">자사 핵심 역할 및 주요 활동 내역</label>
+                                    <textarea id="event_role" name="event_role"
+                                        placeholder="행사 내에서의 구체적인 역할과 성과를 육하원칙에 맞춰 상세히 작성해 주세요. (예: 누가·언제·어디서·무엇을·어떻게·왜)"></textarea>
+                                </div>
+
+                                <!-- 관계자 코멘트 (선택) -->
+                                <div class="form-group">
+                                    <label for="event_quote">관계자 코멘트 <span class="label-optional">(선택)</span></label>
+                                    <textarea id="event_quote" name="event_quote"
+                                        placeholder="임원/담당자의 핵심 메시지(인용구)를 입력하세요"></textarea>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- 유형 B: 인증 획득/선정 -->
+                        <div id="typeB_fields" class="type-fields">
+                            <div class="type-fields-inner">
+                                <div class="form-group">
+                                    <label for="keywords_B">핵심 키워드</label>
+                                    <input type="text" id="keywords_B" name="keywords" placeholder="콤마(,)로 구분">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cert_name">인증(사업)명 및 선정 의미</label>
+                                    <input type="text" id="cert_name" name="cert_name" placeholder="정확한 인증명과 그 의의를 적어주세요">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cert_org">주최 및 주관 기관</label>
+                                    <input type="text" id="cert_org" name="cert_org" placeholder="예: 중소벤처기업부, 창업진흥원">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cert_core">선정 배경 및 자사 핵심 역량</label>
+                                    <textarea id="cert_core" name="cert_core"
+                                        placeholder="어떤 이유로 선정되었는지 육하원칙에 맞춰 구체적으로 작성해 주세요. (예: 어떤 역량이·언제부터·어떻게 인정받았는지, 수치 기반 근거 포함)"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cert_plan">선정 혜택 및 향후 비즈니스 계획</label>
+                                    <textarea id="cert_plan" name="cert_plan" placeholder="지원금/혜택 내용과 이를 활용한 향후 계획"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cert_quote">관계자 코멘트 <span class="label-optional">(선택)</span></label>
+                                    <textarea id="cert_quote" name="cert_quote" placeholder="담당자의 인용구를 입력하세요"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 유형 C: 서비스 런칭 -->
+                        <div id="typeC_fields" class="type-fields">
+                            <div class="type-fields-inner">
+                                <div class="form-group">
+                                    <label for="keywords_C">핵심 키워드</label>
+                                    <input type="text" id="keywords_C" name="keywords" placeholder="콤마(,)로 구분">
+                                </div>
+                                <div class="form-group">
+                                    <label for="launch_name">서비스/제품명</label>
+                                    <input type="text" id="launch_name" name="launch_name" placeholder="정확한 명칭을 입력하세요">
+                                </div>
+                                <div class="form-group">
+                                    <label for="launch_target">메인 타겟 고객 및 기존 시장의 문제점</label>
+                                    <textarea id="launch_target" name="launch_target"
+                                        placeholder="어떤 문제를 해결하고자 출시했는지 적어주세요"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="launch_solution">서비스 핵심 솔루션</label>
+                                    <textarea id="launch_solution" name="launch_solution"
+                                        placeholder="어떤 문제를·어떻게·왜 해결할 수 있는지 육하원칙에 맞춰 상세히 작성해 주세요. (예: 핵심 기능, 차별화 포인트, 기존 대안 대비 강점)"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="launch_promo">런칭 프로모션 및 트랙션 초기 성과</label>
+                                    <textarea id="launch_promo" name="launch_promo"
+                                        placeholder="가격 혜택이나 베타 테스트 시의 초기 반응 등"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="launch_quote">관계자 코멘트 <span class="label-optional">(선택)</span></label>
+                                    <textarea id="launch_quote" name="launch_quote"
+                                        placeholder="대표/담당자의 포부를 덧붙여 주세요"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 유형 D: 그 외 성과 -->
+                        <div id="typeD_fields" class="type-fields">
+                            <div class="type-fields-inner">
+                                <div class="form-group">
+                                    <label for="keywords_D">핵심 키워드</label>
+                                    <input type="text" id="keywords_D" name="keywords" placeholder="콤마(,)로 구분">
+                                </div>
+                                <div class="form-group">
+                                    <label for="achieve_name">성과의 핵심 주제 및 프로젝트명</label>
+                                    <input type="text" id="achieve_name" name="achieve_name" placeholder="프로젝트 이름이나 주요 성과의 제목">
+                                </div>
+                                <div class="form-group">
+                                    <label for="achieve_metrics">정량/정성적 핵심 성과 수치 및 달성 기간</label>
+                                    <input type="text" id="achieve_metrics" name="achieve_metrics"
+                                        placeholder="예: 3개월 만에 매출 200% 증가">
+                                </div>
+                                <div class="form-group">
+                                    <label for="achieve_reason">성공 요인</label>
+                                    <textarea id="achieve_reason" name="achieve_reason"
+                                        placeholder="차별화된 전략이나 방법론을 설명해 주세요"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="achieve_case">구체적인 우수(대표) 사례 요약</label>
+                                    <textarea id="achieve_case" name="achieve_case"
+                                        placeholder="누가·언제·어떤 성과를 달성했는지 육하원칙에 맞춰 상세히 작성해 주세요. (예: 기업명, 도입 배경, 적용 방식, 정량적 결과 수치)"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="achieve_quote">관계자 코멘트 <span class="label-optional">(선택)</span></label>
+                                    <textarea id="achieve_quote" name="achieve_quote"
+                                        placeholder="성과의 의의 및 향후 목표에 대한 인용구"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /#specificFieldsWrapper -->
+
                 </section>
 
-                <!-- 2단계: 특화 정보 -->
+                <!-- 2단계: 최종 검수 영역 -->
                 <section class="form-step" id="step2">
-                    <div class="empty-state hidden" id="emptySpecificFields">
-                        <p>1단계에서 기사 유형을 선택해 주세요.</p>
-                    </div>
-
-                    <!-- 유형 A: 행사 참여 -->
-                    <div id="typeA_fields" class="type-fields hidden">
-                        <div class="form-group">
-                            <label for="event_name">행사명</label>
-                            <input type="text" id="event_name" name="event_name" placeholder="정확한 행사명을 입력하세요">
-                        </div>
-                        <div class="form-group">
-                            <label for="event_info">행사 일시/장소 및 주최</label>
-                            <input type="text" id="event_info" name="event_info"
-                                placeholder="예: 2024년 10월 1일, 코엑스, 한국무역협회">
-                        </div>
-                        <div class="form-group">
-                            <label for="event_role">자사 핵심 역할 및 주요 활동 내역</label>
-                            <textarea id="event_role" name="event_role"
-                                placeholder="참가 부스 운영, 세션 발표 등 주요 활동을 적어주세요"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="event_metrics">행사 규모 및 구체적 성과 수치</label>
-                            <input type="text" id="event_metrics" name="event_metrics"
-                                placeholder="참관객 수, 계약 건수 등 수치 위주로 입력">
-                        </div>
-                        <div class="form-group">
-                            <label for="event_quote">관계자 코멘트 (선택)</label>
-                            <textarea id="event_quote" name="event_quote"
-                                placeholder="임원/담당자의 핵심 메시지(인용구)를 입력하세요"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- 유형 B: 인증 획득/선정 -->
-                    <div id="typeB_fields" class="type-fields hidden">
-                        <div class="form-group">
-                            <label for="cert_name">인증(사업)명 및 선정 의미</label>
-                            <input type="text" id="cert_name" name="cert_name" placeholder="정확한 인증명과 그 의의를 적어주세요">
-                        </div>
-                        <div class="form-group">
-                            <label for="cert_org">주최 및 주관 기관</label>
-                            <input type="text" id="cert_org" name="cert_org" placeholder="예: 중소벤처기업부, 창업진흥원">
-                        </div>
-                        <div class="form-group">
-                            <label for="cert_core">선정 배경 및 자사 핵심 역량</label>
-                            <textarea id="cert_core" name="cert_core"
-                                placeholder="주요 평가 기준이나 입증된 당사의 성과 등을 서술하세요"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="cert_plan">선정 혜택 및 향후 비즈니스 계획</label>
-                            <textarea id="cert_plan" name="cert_plan" placeholder="지원금/혜택 내용과 이를 활용한 향후 계획"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="cert_quote">관계자 코멘트 (선택)</label>
-                            <textarea id="cert_quote" name="cert_quote" placeholder="담당자의 인용구를 입력하세요"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- 유형 C: 서비스 런칭 -->
-                    <div id="typeC_fields" class="type-fields hidden">
-                        <div class="form-group">
-                            <label for="launch_name">서비스/제품명</label>
-                            <input type="text" id="launch_name" name="launch_name" placeholder="정확한 명칭을 입력하세요">
-                        </div>
-                        <div class="form-group">
-                            <label for="launch_target">메인 타겟 고객 및 기존 시장의 문제점</label>
-                            <textarea id="launch_target" name="launch_target"
-                                placeholder="어떤 문제를 해결하고자 출시했는지 적어주세요"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="launch_solution">서비스 핵심 솔루션</label>
-                            <textarea id="launch_solution" name="launch_solution"
-                                placeholder="문제 해결 방식과 차별화 포인트를 입력하세요"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="launch_promo">런칭 프로모션 및 트랙션 초기 성과</label>
-                            <textarea id="launch_promo" name="launch_promo"
-                                placeholder="가격 혜택이나 베타 테스트 시의 초기 반응 등"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="launch_quote">관계자 코멘트 (선택)</label>
-                            <textarea id="launch_quote" name="launch_quote"
-                                placeholder="대표/담당자의 포부를 덧붙여 주세요"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- 유형 D: 그 외 성과 -->
-                    <div id="typeD_fields" class="type-fields hidden">
-                        <div class="form-group">
-                            <label for="achieve_name">성과의 핵심 주제 및 프로젝트명</label>
-                            <input type="text" id="achieve_name" name="achieve_name" placeholder="프로젝트 이름이나 주요 성과의 제목">
-                        </div>
-                        <div class="form-group">
-                            <label for="achieve_metrics">정량/정성적 핵심 성과 수치 및 달성 기간</label>
-                            <input type="text" id="achieve_metrics" name="achieve_metrics"
-                                placeholder="예: 3개월 만에 매출 200% 증가">
-                        </div>
-                        <div class="form-group">
-                            <label for="achieve_reason">성공 요인</label>
-                            <textarea id="achieve_reason" name="achieve_reason"
-                                placeholder="차별화된 전략이나 방법론을 설명해 주세요"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="achieve_case">구체적인 우수(대표) 사례 요약</label>
-                            <textarea id="achieve_case" name="achieve_case"
-                                placeholder="도입 사례나 적용 결과 등 대표적 예시 한 가지"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="achieve_quote">관계자 코멘트 (선택)</label>
-                            <textarea id="achieve_quote" name="achieve_quote"
-                                placeholder="성과의 의의 및 향후 목표에 대한 인용구"></textarea>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 3단계: 최종 검수 영역 -->
-                <section class="form-step" id="step3">
                     <div class="completed-message" id="readyMessage">
                         <svg class="success-icon" width="64" height="64" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

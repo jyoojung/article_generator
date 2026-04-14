@@ -28,7 +28,7 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     padding: 40px 20px;
 }
 
@@ -121,7 +121,6 @@ body {
 /* Form Sections */
 #articleForm {
     padding: 0 48px;
-    min-height: 380px;
 }
 
 .form-step {
@@ -137,15 +136,6 @@ body {
     margin-bottom: 24px;
 }
 
-.row-group {
-    display: flex;
-    gap: 16px;
-}
-
-.field-half {
-    flex: 1;
-}
-
 .form-group label {
     display: block;
     font-weight: 600;
@@ -154,8 +144,14 @@ body {
     color: var(--text-main);
 }
 
-.form-group input, 
-.form-group select, 
+.label-optional {
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.form-group input,
+.form-group select,
 .form-group textarea {
     width: 100%;
     padding: 12px 16px;
@@ -168,24 +164,15 @@ body {
     background-color: var(--modal-bg);
 }
 
-.form-group input::placeholder, 
+.form-group input::placeholder,
 .form-group textarea::placeholder {
     color: #9CA3AF;
     font-weight: 400;
 }
 
-.form-group select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    background-size: 16px;
-    padding-right: 40px;
-}
-
 /* Focus State */
-.form-group input:focus, 
-.form-group select:focus, 
+.form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary-blue);
@@ -196,6 +183,71 @@ body {
     font-size: 0.85rem;
     color: #9CA3AF;
     margin-top: 6px;
+}
+
+/* ─── 분리 입력 필드 그리드 (field-row) ─── */
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+}
+
+/* 2열 변형 */
+.field-row--2col {
+    grid-template-columns: 1fr 1fr;
+}
+
+.field-row-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* .form-group 내 서브 라벨 (굵기 약화, 작은 크기) */
+.sub-label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+/* ─── 섹션 소제목 (Section Heading) ─── */
+.section-heading {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+    margin-top: 4px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Date input 기본 스타일 정렬 */
+input[type="date"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-input);
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text-main);
+    background-color: var(--modal-bg);
+    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+    box-sizing: border-box;
+}
+
+input[type="date"]:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(45, 104, 254, 0.1);
+}
+
+/* 빈 date input 색상 (placeholder 역할) */
+input[type="date"]:not(:valid) {
+    color: #9CA3AF;
 }
 
 textarea {
@@ -212,7 +264,103 @@ textarea {
     display: none !important;
 }
 
-/* Bottom Actions */
+/* =====================================================
+   Tab / Outlined Button Group UI
+   ===================================================== */
+.tab-group {
+    display: flex;
+    width: 100%;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    gap: 0;
+}
+
+.tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 8px;
+    border-radius: 0;
+    border: 1px solid var(--border-color);
+    /* 인접한 버튼의 테두리가 겹쳐서 2px로 보이지 않도록 음수 마진 처리 */
+    margin-left: -1px;
+    background-color: var(--modal-bg);
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    user-select: none;
+    white-space: nowrap;
+    position: relative;
+    z-index: 0;
+}
+
+/* 첫 번째 탭: 좌측 모서리만 둥글게 */
+.tab:first-child {
+    margin-left: 0;
+    border-radius: 8px 0 0 8px;
+}
+
+/* 마지막 탭: 우측 모서리만 둥글게 */
+.tab:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+.tab:hover:not(.active) {
+    color: var(--text-main);
+    border-color: var(--border-hover);
+    z-index: 1;
+}
+
+/* Active 상태: 파란 테두리 4면 + 파란 텍스트, z-index로 인접 테두리 위에 노출 */
+.tab.active {
+    background-color: var(--modal-bg);
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    font-weight: 600;
+    position: relative;
+    z-index: 2;
+}
+
+/* =====================================================
+   Conditional / Dynamic Field Area
+   ===================================================== */
+#specificFieldsWrapper {
+    /* wrapper handles overflow for animation */
+}
+
+.type-fields {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease;
+    overflow: hidden;
+}
+
+.type-fields.expanded {
+    grid-template-rows: 1fr;
+}
+
+.type-fields-inner {
+    overflow: hidden;
+}
+
+/* Divider line that appears above the expanded fields */
+.type-fields.expanded .type-fields-inner {
+    padding-top: 4px;
+}
+
+/* Subtle separator between chip group and expanded fields */
+#specificFieldsWrapper {
+    margin-top: -4px;
+}
+
+/* =====================================================
+   Bottom Actions
+   ===================================================== */
 .modal-footer {
     display: flex;
     align-items: center;
@@ -254,22 +402,6 @@ textarea {
     cursor: not-allowed;
 }
 
-.btn-link {
-    background-color: transparent;
-    border: none;
-    color: #4B5563;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    padding: 0 16px;
-}
-
-.btn-link:hover {
-    text-decoration: underline;
-    color: #111827;
-}
-
 .btn:disabled {
     background-color: #E5E7EB;
     color: #9CA3AF;
@@ -289,14 +421,9 @@ textarea {
     color: var(--text-main);
 }
 
-/* Empty or Success States */
-.empty-state {
-    text-align: center;
-    padding: 60px 0;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-}
-
+/* =====================================================
+   Step 2: Completed / Loading / Result States
+   ===================================================== */
 .completed-message {
     text-align: center;
     padding: 60px 0;
@@ -334,15 +461,23 @@ textarea {
     100% { transform: rotate(360deg); }
 }
 
-.loading-state, .result-state {
+.loading-state,
+.result-state {
     text-align: center;
     padding: 20px 0;
 }
+
 .result-state {
     text-align: left;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
