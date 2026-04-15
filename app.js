@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn   = document.getElementById('backBtn');
     const resetBtn  = document.getElementById('resetBtn');
     const nextBtn   = document.getElementById('nextBtn');
-    const submitBtn = document.getElementById('submitBtn');
     const copyBtn   = document.getElementById('copyBtn');
 
     // ─────────────────────────────────────────────
@@ -139,31 +138,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // 버튼 가시성
-        const resultState = document.getElementById('resultState');
-        const hasResult = resultState && !resultState.classList.contains('hidden');
-
         if (step === 1) {
             backBtn.classList.add('hidden');
             resetBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
-            submitBtn.classList.add('hidden');
             copyBtn.classList.add('hidden');
             validateStep1();
-        } else if (step === TOTAL_STEPS) {
+        } else {
+            // step2: loading / result 상태
             nextBtn.classList.add('hidden');
-
-            if (hasResult) {
-                backBtn.classList.add('hidden');
-                resetBtn.classList.remove('hidden');
-                submitBtn.classList.add('hidden');
-                copyBtn.classList.remove('hidden');
-            } else {
-                backBtn.classList.remove('hidden');
-                resetBtn.classList.add('hidden');
-                submitBtn.classList.remove('hidden');
-                copyBtn.classList.add('hidden');
-                submitBtn.disabled = false;
-            }
+            backBtn.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+            copyBtn.classList.add('hidden');
         }
     }
 
@@ -174,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.currentStep < TOTAL_STEPS) {
             state.currentStep++;
             updateView();
+            submitArticle();
         }
     });
 
@@ -206,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('input[name="keywords"], input[id^="keywords_"]').forEach(el => el.value = '');
 
         document.getElementById('resultState').classList.add('hidden');
-        document.getElementById('readyMessage').classList.remove('hidden');
         document.getElementById('loadingState').classList.add('hidden');
         const outputEl = document.getElementById('finalArticleOutput');
         outputEl.value = '';
@@ -218,15 +204,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────
     // Submit (AI 생성 요청)
     // ─────────────────────────────────────────────
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    const modalFooter = document.querySelector('.modal-footer');
 
-        // Loading 상태 전환
-        document.getElementById('readyMessage').classList.add('hidden');
+    async function submitArticle() {
+        // Loading 상태 즉시 표시 + footer 숨김
         document.getElementById('loadingState').classList.remove('hidden');
         document.getElementById('resultState').classList.add('hidden');
-        submitBtn.disabled = true;
-        backBtn.disabled = true;
+        modalFooter.classList.add('hidden');
 
         const formData = new FormData(form);
         const currentType = state.articleType;
@@ -318,28 +302,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 outputEl.style.height = 'auto';
                 outputEl.style.height = outputEl.scrollHeight + 'px';
 
-                submitBtn.classList.add('hidden');
-                backBtn.classList.add('hidden');
                 copyBtn.classList.remove('hidden');
                 resetBtn.classList.remove('hidden');
+                modalFooter.classList.remove('hidden');
             } else {
                 alert('에러 발생: ' + (data.error || '알 수 없는 오류'));
-                document.getElementById('readyMessage').classList.remove('hidden');
-                submitBtn.classList.remove('hidden');
-                backBtn.classList.remove('hidden');
+                state.currentStep = 1;
+                updateView();
+                modalFooter.classList.remove('hidden');
             }
         } catch (error) {
             console.error('Fetch error:', error);
             alert('서버와 통신할 수 없습니다. (Node.js 서버가 실행 중인지 확인하세요)');
-            document.getElementById('readyMessage').classList.remove('hidden');
-            submitBtn.classList.remove('hidden');
-            backBtn.classList.remove('hidden');
+            state.currentStep = 1;
+            updateView();
+            modalFooter.classList.remove('hidden');
         } finally {
             document.getElementById('loadingState').classList.add('hidden');
-            submitBtn.disabled = false;
-            backBtn.disabled = false;
         }
-    });
+    }
 
     // ─────────────────────────────────────────────
     // Copy

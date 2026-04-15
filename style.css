@@ -464,7 +464,7 @@ textarea {
 .loading-state,
 .result-state {
     text-align: center;
-    padding: 20px 0;
+    padding: 20px 0 48px;
 }
 
 .result-state {
