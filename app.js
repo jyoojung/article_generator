@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn   = document.getElementById('backBtn');
     const resetBtn  = document.getElementById('resetBtn');
     const nextBtn   = document.getElementById('nextBtn');
-    const copyBtn   = document.getElementById('copyBtn');
+    const copyBtn      = document.getElementById('copyBtn');
+    const modalSubtitle = document.getElementById('modalSubtitle');
 
     // ─────────────────────────────────────────────
     // 유형별 데이터 매핑 테이블
@@ -194,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('resultState').classList.add('hidden');
         document.getElementById('loadingState').classList.add('hidden');
+        modalSubtitle.classList.remove('hidden');
         const outputEl = document.getElementById('finalArticleOutput');
         outputEl.value = '';
         outputEl.style.height = 'auto';
@@ -207,10 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalFooter = document.querySelector('.modal-footer');
 
     async function submitArticle() {
-        // Loading 상태 즉시 표시 + footer 숨김
+        // Loading 상태 즉시 표시 + footer 숨김 + 설명 문구 숨김
         document.getElementById('loadingState').classList.remove('hidden');
         document.getElementById('resultState').classList.add('hidden');
         modalFooter.classList.add('hidden');
+        modalSubtitle.classList.add('hidden');
 
         const formData = new FormData(form);
         const currentType = state.articleType;
@@ -310,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.currentStep = 1;
                 updateView();
                 modalFooter.classList.remove('hidden');
+                modalSubtitle.classList.remove('hidden');
             }
         } catch (error) {
             console.error('Fetch error:', error);
@@ -317,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             state.currentStep = 1;
             updateView();
             modalFooter.classList.remove('hidden');
+            modalSubtitle.classList.remove('hidden');
         } finally {
             document.getElementById('loadingState').classList.add('hidden');
         }
