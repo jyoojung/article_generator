@@ -65,12 +65,7 @@ app.post('/api/generate', async (req, res) => {
             throw new Error('OPENAI_API_KEY가 서버의 .env 파일에 설정되어 있지 않습니다.');
         }
 
-        // category 고정값 주입
-        // UI에서 사용자 입력 항목이 삭제되었으므로 서버에서 하드코딩하여 항상 주입합니다.
-        const FIXED_CATEGORY = '알파브라더스(AX/AI 컨설팅 및 IT 스타트업)';
-        if (common) {
-            common.category = FIXED_CATEGORY;
-        }
+
 
         // Combine all variables for injection
         const allVariables = { ...common, ...specific };

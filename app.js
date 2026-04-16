@@ -95,11 +95,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const companyVal = document.getElementById('company').value.trim();
+        if (!companyVal) {
+            nextBtn.disabled = true;
+            return;
+        }
+
         // 선택된 유형의 필수 입력 검사
         // 제외 목록: _quote(선택), event_metrics(선택), keywords_*(이미 검사)
         // typeA는 몇 필드를 keywords_*와 함께 field-row 하위 필드도 포함됨
         const OPTIONAL_IDS = new Set([
             'event_metrics',   // 행사 규모 및 성과 수치 - 선택
+            'launch_promo',    // 런칭 프로모션 - 선택
+            'achieve_case',    // 우수 사례 - 선택
+            'speaker_A', 'speaker_B', 'speaker_C', 'speaker_D', // 관계자명 및 직함 - 선택
             'event_quote', 'cert_quote', 'launch_quote', 'achieve_quote'  // 코멘트 - 선택
         ]);
         const OPTIONAL_NAME_PREFIXES = ['keywords'];
@@ -221,15 +230,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeKeywordsEl = document.querySelector(`#${currentType}_fields input[name="keywords"]`);
         const keywordsValue = activeKeywordsEl ? activeKeywordsEl.value.trim() : '';
 
+        const activeSpeakerEl = document.querySelector(`#${currentType}_fields input[name="speaker"]`);
+        const speakerValue = activeSpeakerEl ? activeSpeakerEl.value.trim() : '';
+
         // ─── 특화 데이터 수집 ───
         const collectedSpecific = {};
         if (currentType) {
             for (let [key, value] of formData.entries()) {
-                if (!['keywords', 'articleType'].includes(key)) {
+                if (!['keywords', 'articleType', 'speaker'].includes(key)) {
                     collectedSpecific[key] = value || '';
                 }
             }
         }
+        collectedSpecific.speaker = speakerValue;
 
         // ─── [typeA 전용] 분리된 3필드를 event_info로 병합 ───────────────────────
         // event_date, event_place, event_org → "일시: [v], 장소: [v], 주최: [v]" 형태
@@ -269,7 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const collectedCommon = {
             topic:        mappedTopic,
             main_content: mappedMainContent,
-            category:     '', // 백엔드에서 고정값('알파브라더스(AX/AI 컨설팅 및 IT 스타트업)')으로 주입
             keywords:     keywordsValue
         };
 
@@ -299,11 +311,93 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok && data.success) {
                 document.getElementById('resultState').classList.remove('hidden');
 
-                const outputEl = document.getElementById('finalArticleOutput');
-                let cleanedText = data.final_text.replace(/\[최종 보도자료\]\s*/g, '').trim();
-                outputEl.value = cleanedText;
-                outputEl.style.height = 'auto';
-                outputEl.style.height = outputEl.scrollHeight + 'px';
+                const rawText = data.final_text.replace(/\[최종 보도자료\]\s*/g, '').trim();
+                
+                // Parsing logic
+                let mainTitle = '';
+                let varTitle1 = '';
+                let varTitle2 = '';
+                let bodyText = '';
+
+                // Extract titles
+                const titleMatch = rawText.match(/제목:\s*(.+?)(?=\n|$)/);
+                if (titleMatch) mainTitle = titleMatch[1].trim();
+
+                const var1Match = rawText.match(/\(베리에이션 1:\s*(.+?)\)/);
+                if (var1Match) varTitle1 = var1Match[1].trim();
+
+                const var2Match = rawText.match(/\(베리에이션 2:\s*(.+?)\)/);
+                if (var2Match) varTitle2 = var2Match[1].trim();
+
+                // Extract body text
+                const bodyTextIdx = rawText.indexOf('본문:');
+                if (bodyTextIdx !== -1) {
+                    bodyText = rawText.substring(bodyTextIdx + '본문:'.length).trim();
+                } else {
+                    bodyText = rawText; // Fallback
+                }
+
+                // UI Update
+                const mainTitleEl = document.getElementById('mainTitleOutput');
+                mainTitleEl.value = mainTitle;
+                mainTitleEl.style.height = 'auto';
+                mainTitleEl.style.height = mainTitleEl.scrollHeight + 'px';
+
+                const bodyTextEl = document.getElementById('bodyTextOutput');
+                bodyTextEl.value = bodyText;
+                bodyTextEl.style.height = 'auto';
+                bodyTextEl.style.height = bodyTextEl.scrollHeight + 'px';
+
+                // Chips Rendering
+                const chipsContainer = document.getElementById('variationChips');
+                chipsContainer.innerHTML = ''; // Clear existing chips
+
+                let activeChipEl = null;
+
+                const addChip = (titleText, label, isDefault = false) => {
+                    if (!titleText) return;
+                    const chip = document.createElement('div');
+                    chip.className = 'variation-chip';
+                    chip.innerHTML = `
+                        <span class="chip-checkbox">
+                            <svg width="10" height="8" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                <path d="M1 5L4.5 8.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="chip-text">${label}</span>
+                    `;
+                    
+                    // Click chip to replace main title
+                    const activateChip = () => {
+                        // Handle active state
+                        if (activeChipEl) {
+                            activeChipEl.classList.remove('active');
+                            const activeSvg = activeChipEl.querySelector('svg');
+                            if (activeSvg) activeSvg.style.display = 'none';
+                        }
+                        
+                        chip.classList.add('active');
+                        const svg = chip.querySelector('svg');
+                        if (svg) svg.style.display = 'block';
+                        activeChipEl = chip;
+                        
+                        mainTitleEl.value = titleText;
+                        mainTitleEl.style.height = 'auto';
+                        mainTitleEl.style.height = mainTitleEl.scrollHeight + 'px';
+                    };
+
+                    chip.addEventListener('click', activateChip);
+
+                    chipsContainer.appendChild(chip);
+
+                    if (isDefault) {
+                        activateChip();
+                    }
+                };
+
+                addChip(mainTitle, '제목 1', true);
+                addChip(varTitle1, '제목 2');
+                addChip(varTitle2, '제목 3');
 
                 copyBtn.classList.remove('hidden');
                 resetBtn.classList.remove('hidden');
@@ -331,7 +425,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Copy
     // ─────────────────────────────────────────────
     copyBtn.addEventListener('click', () => {
-        const textToCopy = document.getElementById('finalArticleOutput').value;
+        const mainTitle = document.getElementById('mainTitleOutput').value.trim();
+        const bodyText = document.getElementById('bodyTextOutput').value.trim();
+        
+        let textToCopy = '';
+        if (mainTitle) textToCopy += mainTitle + '\n\n';
+        textToCopy += bodyText;
+
         navigator.clipboard.writeText(textToCopy).then(() => {
             copyBtn.innerText = '복사 완료! ✅';
             setTimeout(() => { copyBtn.innerText = '복사하기'; }, 2000);
@@ -343,11 +443,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────
     // Textarea Auto-resize
     // ─────────────────────────────────────────────
-    const outputEl = document.getElementById('finalArticleOutput');
-    outputEl.addEventListener('input', function () {
+    const autoResize = function () {
         this.style.height = 'auto';
         this.style.height = this.scrollHeight + 'px';
-    });
+    };
+
+    document.getElementById('mainTitleOutput').addEventListener('input', autoResize);
+    document.getElementById('bodyTextOutput').addEventListener('input', autoResize);
 
     // ─────────────────────────────────────────────
     // Init — 첫 번째 탭(행사 참여)을 기본 선택 상태로 설정
