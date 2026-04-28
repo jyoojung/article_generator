@@ -205,9 +205,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('resultState').classList.add('hidden');
         document.getElementById('loadingState').classList.add('hidden');
         modalSubtitle.classList.remove('hidden');
-        const outputEl = document.getElementById('finalArticleOutput');
-        outputEl.value = '';
-        outputEl.style.height = 'auto';
+
+        const mainTitleEl = document.getElementById('mainTitleOutput');
+        mainTitleEl.value = '';
+        mainTitleEl.style.height = 'auto';
+
+        const bodyTextEl = document.getElementById('bodyTextOutput');
+        bodyTextEl.value = '';
+        bodyTextEl.style.height = 'auto';
+
+        document.getElementById('variationChips').innerHTML = '';
 
         updateView();
     });
